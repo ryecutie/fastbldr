@@ -1,0 +1,6 @@
+name: fastbldr
+version: '${project.version}'
+main: fastbldr.fastbldr.fastbldr
+api-version: 1.19
+authors: [ rye ]
+description: sets up/manages fastbuilder gamemode

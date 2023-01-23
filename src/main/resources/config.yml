@@ -1,0 +1,7 @@
+fastbldr:
+  schem:
+    file: fastbldr.schem
+    length: 5
+    start: 0,0,0
+    player: 1,0,1
+  world: world
