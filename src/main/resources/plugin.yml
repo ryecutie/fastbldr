@@ -9,3 +9,6 @@ commands:
   updatefbschem:
     description: updates fastbuilder schematic
     usage: /<command> <schem file> <build length> <start position> <player position>
+  debugfunction:
+    description: debugs function
+    usage: /<command>

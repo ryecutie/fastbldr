@@ -10,6 +10,9 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import fastbldr.fastbldr.cmds.debugfunction;
+import fastbldr.fastbldr.cmds.updatefbschem;
+import fastbldr.fastbldr.events.playerjoin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public final class fastbldr extends JavaPlugin {
@@ -31,27 +33,37 @@ public final class fastbldr extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
+        getServer().getConsoleSender().sendMessage("enabled fastbldr plugin! :)");
+
+        getCommand("debugfunction").setExecutor(new debugfunction());
+        getCommand("updatefbschem").setExecutor(new updatefbschem());
+        new playerjoin(this);
     }
     @Override
     public void onDisable() {
+        getServer().getConsoleSender().sendMessage("disabled fastbldr plugin! :(");
     }
     public void resetSchem() {
 
         // create variables
         List players = Arrays.asList(this.getServer().getOnlinePlayers());
-        File file = (File) this.getConfig().get("fastbldr.schem.file");
-        String length = (String) this.getConfig().get("fastbldr.schem.length");
+        File file = new File((String)this.getConfig().get("fastbldr.schem.file"));
+        int length = Integer.parseInt((String) this.getConfig().get("fastbldr.schem.length"));
         List start = Arrays.asList(String.valueOf(this.getConfig().get("fastbldr.schem.start")).split("\\s*,\\s*,\\s*"));
         List pstart = Arrays.asList(String.valueOf(this.getConfig().get("fastbldr.schem.player")).split("\\s*,\\s*,\\s*"));
-        World world = (World) this.getConfig().get("fastbldr.world");
-        
+        World world = Bukkit.getServer().getWorld((String) this.getConfig().get("fastbldr.world"));
+
         // loop player list; give each player a schem
         for (Object ob : players) {
 
             // edit variables
-            Player p = (Player) ob;
-            start.set(0, String.valueOf(((int) start.get(0)) + (Integer.valueOf(players.indexOf(ob))*Integer.valueOf(length))));
-            pstart.set(0, String.valueOf(((int) pstart.get(0)) + (Integer.valueOf(players.indexOf(ob))*Integer.valueOf(length))));
+            Player p = Bukkit.getPlayer(String.valueOf(ob));
+            p.sendMessage((String) start.get(0));
+            int a = Integer.valueOf((String) start.get(0));
+            int b = players.indexOf(ob)*length;
+            String c = String.valueOf(a+b);
+            start.set(0, c);
+            pstart.set(0, String.valueOf(Integer.valueOf((String) pstart.get(0)) + (players.indexOf(ob)*length)));
 
             // paste schem
             Clipboard clipboard;
