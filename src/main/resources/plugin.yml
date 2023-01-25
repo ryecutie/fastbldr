@@ -6,9 +6,12 @@ authors: [ rye ]
 depend: [WorldEdit]
 description: sets up/manages fastbuilder gamemode
 commands:
-  updatefbschem:
-    description: updates fastbuilder schematic
-    usage: /<command> <schem file> <build length> <start position> <player position>
+  reloadconfig:
+    description: reload fastbuilder config
+    usage: /<command>
   debugfunction:
     description: debugs function
     usage: /<command>
+  troll:
+    description: trolls specified player
+    usage: /<command> <player>

@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
+
 public class debugfunction implements CommandExecutor {
     fastbldr fb = fastbldr.instance;
     @Override
@@ -15,10 +17,13 @@ public class debugfunction implements CommandExecutor {
         Player p = (Player) sender;
 
         if (command.getName().equalsIgnoreCase("debugfunction")){
-            fb.resetSchem();
+            try {
+                fb.resetSchem();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             p.sendMessage(ChatColor.of("#f2891f") + " ➜" + ChatColor.of("#cccccc") + " ran resetSchem()");
         }
-
         return true;
     }
 }

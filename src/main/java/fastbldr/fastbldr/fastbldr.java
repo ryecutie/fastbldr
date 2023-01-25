@@ -3,6 +3,8 @@ package fastbldr.fastbldr;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
@@ -11,7 +13,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import fastbldr.fastbldr.cmds.debugfunction;
-import fastbldr.fastbldr.cmds.updatefbschem;
+import fastbldr.fastbldr.cmds.reloadconfig;
 import fastbldr.fastbldr.events.playerjoin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,13 +21,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.awt.datatransfer.Clipboard;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 public final class fastbldr extends JavaPlugin {
     public static fastbldr instance;
@@ -36,50 +34,39 @@ public final class fastbldr extends JavaPlugin {
         getServer().getConsoleSender().sendMessage("enabled fastbldr plugin! :)");
 
         getCommand("debugfunction").setExecutor(new debugfunction());
-        getCommand("updatefbschem").setExecutor(new updatefbschem());
+        getCommand("reloadconfig").setExecutor(new reloadconfig());
         new playerjoin(this);
     }
     @Override
     public void onDisable() {
         getServer().getConsoleSender().sendMessage("disabled fastbldr plugin! :(");
     }
-    public void resetSchem() {
+    public void resetSchem() throws IOException {
 
         // create variables
-        List players = Arrays.asList(this.getServer().getOnlinePlayers());
-        File file = new File((String)this.getConfig().get("fastbldr.schem.file"));
+        File file = new File(getDataFolder(), (String)this.getConfig().get("fastbldr.schem.file"));
         int length = Integer.parseInt((String) this.getConfig().get("fastbldr.schem.length"));
-        List start = Arrays.asList(String.valueOf(this.getConfig().get("fastbldr.schem.start")).split("\\s*,\\s*,\\s*"));
-        List pstart = Arrays.asList(String.valueOf(this.getConfig().get("fastbldr.schem.player")).split("\\s*,\\s*,\\s*"));
-        World world = Bukkit.getServer().getWorld((String) this.getConfig().get("fastbldr.world"));
+        String[] start = String.valueOf(this.getConfig().get("fastbldr.schem.start")).split("\\s*,\\s*");
+        String[] pstart = String.valueOf(this.getConfig().get("fastbldr.schem.player")).split("\\s*,\\s*");
+        World world = Bukkit.getWorld((String) this.getConfig().get("fastbldr.world"));
 
         // loop player list; give each player a schem
-        for (Object ob : players) {
+        int index = 0;
+        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 
             // edit variables
-            Player p = Bukkit.getPlayer(String.valueOf(ob));
-            p.sendMessage((String) start.get(0));
-            int a = Integer.valueOf((String) start.get(0));
-            int b = players.indexOf(ob)*length;
-            String c = String.valueOf(a+b);
-            start.set(0, c);
-            pstart.set(0, String.valueOf(Integer.valueOf((String) pstart.get(0)) + (players.indexOf(ob)*length)));
+            start[0] = String.valueOf(Float.valueOf(start[0])+(index*length));
+            pstart[0] = String.valueOf(Float.valueOf(pstart[0])+(index*length));
 
             // paste schem
-            Clipboard clipboard;
             ClipboardFormat format = ClipboardFormats.findByFile(file);
-            try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-                clipboard = (Clipboard) reader.read();
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ClipboardReader reader = format.getReader(new FileInputStream(file));
+            Clipboard clipboard = reader.read();
 
-            try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((com.sk89q.worldedit.world.World) world, -1)) {
-                Operation operation = new ClipboardHolder((com.sk89q.worldedit.extent.clipboard.Clipboard) clipboard)
+            try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(world), -1)) {
+                Operation operation = new ClipboardHolder(clipboard)
                         .createPaste(editSession)
-                        .to(BlockVector3.at((int) start.get(0), (int) start.get(1), (int) start.get(2)))
+                        .to(BlockVector3.at(Float.valueOf(start[0]), Float.valueOf(start[1]), Float.valueOf(start[2])))
                         .ignoreAirBlocks(false)
                         .build();
                 Operations.complete(operation);
@@ -88,8 +75,8 @@ public final class fastbldr extends JavaPlugin {
             }
 
             // teleport player to spawn point
-            p.teleport(new Location(world, (int) pstart.get(0), (int) pstart.get(1), (int) pstart.get(2)));
+            p.teleport(new Location(world, Float.valueOf(pstart[0]), Float.valueOf(pstart[1]), Float.valueOf(pstart[2])));
+            index++;
         }
-
     }
 }
