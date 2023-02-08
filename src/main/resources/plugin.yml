@@ -3,7 +3,7 @@ version: '${project.version}'
 main: fastbldr.fastbldr.fastbldr
 api-version: 1.19
 authors: [ rye ]
-depend: [WorldEdit]
+depend: [WorldEdit, WorldGuard]
 description: sets up/manages fastbuilder gamemode
 commands:
   reloadconfig:
