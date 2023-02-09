@@ -18,7 +18,7 @@ public class debugfunction implements CommandExecutor {
 
         if (command.getName().equalsIgnoreCase("debugfunction")){
             try {
-                fb.resetSchem();
+                fb.resetGrid();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

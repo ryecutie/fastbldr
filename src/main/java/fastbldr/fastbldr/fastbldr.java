@@ -50,6 +50,11 @@ public final class fastbldr extends JavaPlugin {
         instance = this;
         this.saveDefaultConfig();
         getServer().getConsoleSender().sendMessage("enabled fastbldr plugin! :)");
+        try {
+            resetGrid();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         getCommand("debugfunction").setExecutor(new debugfunction());
         getCommand("reloadconfig").setExecutor(new reloadconfig());
@@ -95,6 +100,10 @@ public final class fastbldr extends JavaPlugin {
             } catch (WorldEditException e) {
                 throw new RuntimeException(e);
             }
+
+            // creating region
+            ProtectedCuboidRegion region = new ProtectedCuboidRegion(p.getName() + "-island", clipboard.getMinimumPoint(), clipboard.getMaximumPoint());
+            WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(p.getWorld())).addRegion(region);
 
             // teleport player to spawn point
             p.teleport(new Location(world, Float.valueOf(pstart[0]), Float.valueOf(pstart[1]), Float.valueOf(pstart[2])));
